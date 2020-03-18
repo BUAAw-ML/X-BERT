@@ -28,6 +28,8 @@ from GCN import GraphConvolution, gen_A, gen_adj
 
 from word_embedding import *
 
+import math
+
 
 class GraphUtil():
     def __init__(self, Y, num_labels):
@@ -58,7 +60,15 @@ class BertGCN(BertModel):
         self.softmax = nn.Softmax(dim=1)
         self.apply(self.init_bert_weights)
         self.gcn_weight1 = Parameter(torch.Tensor(H.shape[1], 1500))
+
+        stdv = 1. / math.sqrt(self.gcn_weight1.size(1))
+        self.gcn_weight1.data.uniform_(-stdv, stdv)
+
         self.gcn_weight2 = Parameter(torch.Tensor(1500, 768))
+
+        stdv = 1. / math.sqrt(self.gcn_weight2.size(1))
+        self.gcn_weight2.data.uniform_(-stdv, stdv)
+
         self.lkrelu = nn.LeakyReLU(0.2)
         self.A = torch.tensor(gen_A(num_labels, res)).float().to(self.device)
         # self.A = Parameter(torch.from_numpy(gen_A(num_labels, res)).float()).to(self.device)
