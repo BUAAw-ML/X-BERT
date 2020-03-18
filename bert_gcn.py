@@ -204,6 +204,11 @@ class BertGCNClassifier():
                 #     continue
                 input_ids = all_input_ids[step*bs:(step+1)*bs].to(self.device)
                 labels = get_binary_vec(Y[step*bs:(step+1)*bs], self.H.shape[0])
+
+                print(input_ids)
+                print(labels)
+                exit()
+
                 labels = get_tensor(labels.toarray(), self.device)
                 c_pred = self.model(input_ids)
                 # print(c_pred.shape)
