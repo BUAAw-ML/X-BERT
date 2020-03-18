@@ -239,8 +239,8 @@ class BertGCNClassifier():
             val_labels = np.array(val_Y)
             acc = self.evaluate(val_inputs, val_labels)
             self.model.train()
-            if not self.ft:
-                self.model.H = get_tensor(self.update_label_feature(X, Y, epoch, output_dir), self.device)
+            # if not self.ft:
+            #     self.model.H = get_tensor(self.update_label_feature(X, Y, epoch, output_dir), self.device)
             self.save(output_dir)
 
 
