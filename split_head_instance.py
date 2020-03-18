@@ -50,7 +50,7 @@ def main():
             head_Y.append(lbs)
 
     with open(ds_path+'/mlc2seq/heads-'+str(threshold), 'wb') as g:
-        pkl.dump(g)
+        pkl.dump(heads, g)
 
     head_instances = np.array(head_instances)
     head_Y = np.array(head_Y)
