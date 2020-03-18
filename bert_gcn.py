@@ -121,21 +121,34 @@ def get_binary_vec(label_list, output_dim, divide=False):
         res[i, label]=1
     return res
 
-def get_score(logits, truth, k=5):
-    num_corrects = np.zeros(k)
-    preds = np.argsort(-logits.cpu().detach().numpy())[:k]
-    truth = np.where(truth)[0]
 
-    precision=np.zeros(k)
-    recall=np.zeros(k)
-    for i, pred in enumerate(preds):
-        if pred in truth:
-            num_corrects[i:] += 1
+def get_score(scores_, targets_, k=5):
 
-    for i in range(k):
-        precision[i] = num_corrects[i]/(i+1)
-        recall[i] = num_corrects[i]/len(truth)
-    return precision, recall
+    if scores_.numel() == 0:
+        return 0
+    scores_ = scores_.cpu().numpy()
+    targets_ = targets_.cpu().numpy()
+
+    n, n_class = scores_.shape
+    Nc, Np, Ng = np.zeros(n_class), np.zeros(n_class), np.zeros(n_class)
+    for k in range(n_class):
+        scores = scores_[:, k]
+        targets = targets_[:, k]
+        targets[targets == -1] = 0
+        Ng[k] = np.sum(targets == 1)
+        Np[k] = np.sum(scores >= 0)
+        Nc[k] = np.sum(targets * (scores >= 0))
+
+    # Np[Np == 0] = 1
+    OP = np.sum(Nc) / np.sum(Np + 1e-5)
+    OR = np.sum(Nc) / np.sum(Ng + 1e-5)
+    OF1 = (2 * OP * OR) / (OP + OR + 1e-5)
+
+    CP = np.sum(Nc / (Np + 1e-5)) / n_class
+    CR = np.sum(Nc / (Ng + 1e-5)) / n_class
+    CF1 = (2 * CP * CR) / (CP + CR + 1e-5)
+
+    return OP, OR, OF1, CP, CR, CF1
 
 def get_tensor(M, dv):
     return torch.tensor(M).float().to(dv)
@@ -231,19 +244,14 @@ class BertGCNClassifier():
                 loss.backward()
                 optimizer.step()
                 if step % self.hypes.log_interval == 0:
-                    for i in range(len(c_pred)):
-                        eval_t += 1
-                        truth = labels.cpu().detach().numpy().astype(int)[i]
-                        logit = c_pred[i]
-                        precision, recall = get_score(logit, truth)
-                        precisions += precision
-                        recalls += recall
+                    precision, recall, F1, _, _, _ = get_score(c_pred, labels)
                     elapsed = time.time() - start_time
                     start_time = time.time()
                     cur_loss = tr_loss / nb_tr_steps
                     print("| {:4d}/{:4d} batches | ms/batch {:5.2f}".format(step, int(len(X)/bs), elapsed * 1000))
-                    print('Precision:', np.round(precisions/eval_t, 4))
-                    print('Recall:', np.round(recalls/eval_t, 4))
+                    print('Precision:', np.round(precision, 4))
+                    print('Recall:', np.round(recall, 4))
+                    print('F1:', np.round(F1, 4))
 
             # if epoch % 20 == 0:
             output_dir = '../save_models/gcn_classifier/'+self.hypes.dataset+'/t-'+str(self.t)+'_ep-'+str(epoch)+'/'
@@ -267,8 +275,9 @@ class BertGCNClassifier():
 
         num_corrects = 0
         start_time = time.time()
-        precisions = np.zeros(5)
-        recalls = np.zeros(5)
+        precisions = 0
+        recalls = 0
+        F1s = 0
         eval_t=0
         print('Inferencing...')
         for step in trange(int(len(X)/bs)-1):
@@ -278,16 +287,15 @@ class BertGCNClassifier():
             with torch.no_grad():
                 c_pred = self.model(input_ids)
 
-            for i in range(len(c_pred)):
-                eval_t += 1
-                truth = labels.cpu().detach().numpy().astype(int)[i]
-                logit = c_pred[i]
-                precision, recall = get_score(logit, truth)
-                precisions += precision
-                recalls += recall
+            eval_t += 1
+            precision, recall, F1, _, _, _ = get_score(c_pred, labels)
+            precisions += precision
+            recalls += recall
+            F1s += F1
 
         print('Test Precision:', np.round(precisions/eval_t, 4))
         print('Test Recall:', np.round(recalls/eval_t, 4))
+        print('Test F1:', np.round(F1s / eval_t, 4))
 
     def get_bert_token(self, trn_text, only_CLS=False):
         X = []
