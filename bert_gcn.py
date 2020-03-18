@@ -78,14 +78,16 @@ class BertGCN(BertModel):
         adj = self.adj
         # adj = gen_adj(self.A).detach()
         x = torch.matmul(adj, self.dropout(torch.matmul(self.H, self.gcn_weight1)))
+        print(x)
         x = self.lkrelu(x)
         x = torch.matmul(adj, torch.matmul(x, self.gcn_weight2))
+        print(x)
         x = self.lkrelu(x)
         x = x.transpose(1, 0)
         x = torch.matmul(bert_logits, x)
         logits = x + skip
-        print(x)
-        print(skip)
+
+
         exit()
         # logits = x
         # logits = self.FCN2(logits)
