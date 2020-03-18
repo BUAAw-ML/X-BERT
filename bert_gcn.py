@@ -382,7 +382,7 @@ def main():
     parser.add_argument("-t", "--head_threshold", default=100, type=int)
     parser.add_argument("-gpu", "--device_num", default='0', type=str)
     parser.add_argument("-train", "--is_train", default=1, type=int)
-    parser.add_argument("-ep", "--epochs", default=8, type=int)
+    parser.add_argument("-ep", "--epochs", default=20, type=int)
     parser.add_argument("-ft", "--fine_tune", default=0, type=int)
     parser.add_argument("-from", "--ft_from", default=0, type=int)
     args = parser.parse_args()
