@@ -38,6 +38,15 @@ class Hyperparameters():
             self.eval_interval=15000
             self.learning_rate=8e-5
             self.warmup_rate=0.2
+        elif dataset == 'ProgrammerWeb-12K':
+            self.dataset = 'ProgrammerWeb-12K'
+            self.depth=8
+            self.train_batch_size=4
+            self.eval_batch_size=8
+            self.log_interval=8000
+            self.eval_interval=100
+            self.learning_rate=5e-5
+            self.warmup_rate=0.1
         else:
             print("unknown dataset for the experiment!")
             exit()

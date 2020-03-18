@@ -2,7 +2,7 @@ import argparse
 import os, sys, time
 import pickle as pkl
 import scipy.sparse as smat
-from xbert.rf_util import smat_util
+#from xbert.rf_util import smat_util
 import numpy as np
 from tqdm import tqdm, trange
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import Parameter
+
 from pytorch_pretrained_bert import BertTokenizer, BertModel
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel, BertConfig, WEIGHTS_NAME, CONFIG_NAME
 from pytorch_pretrained_bert.optimization import BertAdam, WarmupLinearSchedule
@@ -24,6 +25,9 @@ import random
 # import xbert.rf_util as rf_util
 from Hyperparameters import Hyperparameters
 from GCN import GraphConvolution, gen_A, gen_adj
+
+from word_embedding import *
+
 
 class GraphUtil():
     def __init__(self, Y, num_labels):
@@ -146,7 +150,7 @@ class BertGCNClassifier():
         print('updating label fetures...')
         all_input_ids = torch.tensor(X)
 
-        Y = get_binary_vec(Y, self.H.shape[0], divide=True).transpose() # m * n
+        Y = get_binary_vec(Y, self.H.shape[0], divide=False).transpose() # m * n
         outputs = np.zeros([Y.shape[0], 768])
 
         sample_size = 20
@@ -240,8 +244,6 @@ class BertGCNClassifier():
             self.save(output_dir)
 
 
-
-
     def evaluate(self, X, Y, model_path=''):
         if model_path:
             self.model.load_state_dict(torch.load(model_path))
@@ -318,23 +320,26 @@ def load_data(X_path, head_X, bert):
     return X
 
 def load_label(ds_path):
-    label_space = smat.load_npz(ds_path+'/L.elmo.npz')
-    label_space = smat.lil_matrix(label_space)
-    label_path = ds_path+'/L.elmo_768.npy'
-    print('reducing dimensions in label space with t-SVD...')
+    # label_space = smat.load_npz(ds_path+'/L.elmo.npz')
+    # label_space = smat.lil_matrix(label_space)
+
+    label_path = os.path.join(ds_path, 'word_embedding_model', 'glove_word2vec_programwebTag.pkl') #ds_path+'/L.elmo_768.npy'
+
     if os.path.exists(label_path):
         label_space = np.load(label_path)
     else:
-        tsvd = TruncatedSVD(768)
-        label_space = tsvd.fit_transform(label_space)
-        np.save(label_path, label_space)
+        print('reducing dimensions in label space with t-SVD...')
+        # tsvd = TruncatedSVD(768)
+        # label_space = tsvd.fit_transform(label_space)
+        # np.save(label_path, label_space)
     return label_space
+
 
 def main():
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument("-ds", "--dataset", default="AmazonCat-13K", type=str, required=True)
-    parser.add_argument("-t", "--head_threshold", default=10000, type=int)
-    parser.add_argument("-gpu", "--device_num", default='0', type=str)
+    parser.add_argument("-ds", "--dataset", default="ProgrammerWeb-12K", type=str, required=True)
+    parser.add_argument("-t", "--head_threshold", default=100, type=int)
+    parser.add_argument("-gpu", "--device_num", default='1', type=str)
     parser.add_argument("-train", "--is_train", default=1, type=int)
     parser.add_argument("-ep", "--epochs", default=8, type=int)
     parser.add_argument("-ft", "--fine_tune", default=0, type=int)
@@ -344,7 +349,7 @@ def main():
     ft = (args.fine_tune == 1)
     ft_from = args.ft_from
     hypes = Hyperparameters(args.dataset)
-    ds_path = '../datasets/' + args.dataset
+    ds_path = './dataset'
     device_num = args.device_num
     head_threshold = args.head_threshold
     with open(ds_path+'/mlc2seq/train_heads_X-'+str(head_threshold), 'rb') as g:
@@ -355,15 +360,12 @@ def main():
         test_head_X = pkl.load(g)
     with open(ds_path+'/mlc2seq/test_heads_Y-'+str(head_threshold), 'rb') as g:
         test_head_Y = pkl.load(g)
-    answer = smat.load_npz(ds_path+'/Y.tst.npz')
+
     with open(ds_path+'/mlc2seq/heads-'+str(head_threshold), 'rb') as g:
         heads = pkl.load(g)
 
     label_space = load_label(ds_path)
     label_space = label_space[:len(heads)]
-    # label_space = smat.load_npz(ds_path+'/L.elmo.npz')
-    # label_space = smat.lil_matrix(label_space)
-    # label_space = label_space[:len(heads)].toarray()
 
     output_dim = len(heads)
     gutil = GraphUtil(trn_head_Y, output_dim)
@@ -393,7 +395,6 @@ def main():
         model_path = '../save_models/gcn_classifier/'+args.dataset+'/t-'+str(head_threshold)+'_ep-'+str(ft_from)+'/pytorch_model.bin'
         print('======================Start Testing======================')
         bert.evaluate(test_X, test_head_Y, model_path)
-
 
 
 if __name__ == '__main__':

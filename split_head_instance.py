@@ -27,25 +27,34 @@ def parse_mlc2seq_format(data_path):
             corpus.append(title + " " + dscp)
     return labels, corpus
 
+
 def main():
+
     parser = argparse.ArgumentParser(description='')
     parser.add_argument("-t", "--threshold", default=100, type=int, required=False)
-
     args = parser.parse_args()
+
     ds_path = './dataset'
     threshold = args.threshold
 
     head_instances = []
     head_Y = []
-    heads = set()
+
+    heads = []
+    tag2id = {}
+
     trn_labels, trn_corpus = parse_mlc2seq_format(ds_path + '/mlc2seq/programweb-data.csv')
     for idx, labels in tqdm(enumerate(trn_labels)):
         labels = np.array(list(labels.strip().split('###')))
         labels = [t for t in labels if t != '']
         lbs = []
         for label in list(set(labels)):
-            lbs.append(label)
-            heads.update(label)
+            if label not in tag2id:
+                tag_id = len(tag2id)
+                tag2id[label] = tag_id
+                heads.append(label)
+            lbs.append(tag2id[label])
+
         if len(lbs):
             head_instances.append(trn_corpus[idx])
             head_Y.append(lbs)
