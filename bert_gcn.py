@@ -241,7 +241,7 @@ class BertGCNClassifier():
             self.model.train()
             # if not self.ft:
             #     self.model.H = get_tensor(self.update_label_feature(X, Y, epoch, output_dir), self.device)
-            self.save(output_dir)
+            #self.save(output_dir)
 
 
     def evaluate(self, X, Y, model_path=''):
