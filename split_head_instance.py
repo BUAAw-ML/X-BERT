@@ -29,16 +29,15 @@ def parse_mlc2seq_format(data_path):
 
 def main():
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument("-ds", "--dataset", default="ProgrammerWeb-12K", type=str, required=False)
     parser.add_argument("-t", "--threshold", default=100, type=int, required=False)
 
     args = parser.parse_args()
-    ds_path = '../datasets/' + args.dataset
+    ds_path = './dataset'
     threshold = args.threshold
 
     head_instances = []
     head_Y = []
-    trn_labels, trn_corpus = parse_mlc2seq_format(ds_path + '/mlc2seq/train.txt')
+    trn_labels, trn_corpus = parse_mlc2seq_format(ds_path + '/mlc2seq/programweb-data.csv')
     for idx, labels in tqdm(enumerate(trn_labels)):
         labels = np.array(list(labels.strip().split('###')))
         lbs = []
