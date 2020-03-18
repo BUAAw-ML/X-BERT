@@ -140,8 +140,8 @@ def get_score(scores_, targets_, k=5):
         targets = targets_[:, k]
         #targets[targets == -1] = 0
         Ng[k] = np.sum(targets == 1)
-        Np[k] = np.sum(scores >= 0)
-        Nc[k] = np.sum(targets * (scores >= 0))
+        Np[k] = np.sum(scores >= 0.5)
+        Nc[k] = np.sum(targets * (scores >= 0.5))
 
     # Np[Np == 0] = 1
     OP = np.sum(Nc) / np.sum(Np + 1e-5)
