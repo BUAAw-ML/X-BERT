@@ -326,7 +326,8 @@ def load_label(ds_path):
     label_path = os.path.join(ds_path, 'word_embedding_model', 'glove_word2vec_programwebTag.pkl') #ds_path+'/L.elmo_768.npy'
 
     if os.path.exists(label_path):
-        label_space = pkl.load(label_path)
+        with open(label_path, 'rb') as fp:
+            label_space = pkl.load(fp)
     else:
         print('reducing dimensions in label space with t-SVD...')
         # tsvd = TruncatedSVD(768)
