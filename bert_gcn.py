@@ -16,7 +16,7 @@ from torch.nn import Parameter
 from pytorch_pretrained_bert import BertTokenizer, BertModel
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel, BertConfig, WEIGHTS_NAME, CONFIG_NAME
 from pytorch_pretrained_bert.optimization import BertAdam, WarmupLinearSchedule
-from gensim.models import KeyedVectors as KV
+#from gensim.models import KeyedVectors as KV
 from sklearn.neighbors import NearestNeighbors as NN
 import random
 # from mather.bert import *
