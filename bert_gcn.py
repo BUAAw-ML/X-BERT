@@ -29,6 +29,7 @@ from GCN import GraphConvolution, gen_A, gen_adj
 from word_embedding import *
 
 import math
+import sklearn.metrics as sm
 
 
 class GraphUtil():
@@ -128,31 +129,39 @@ def get_score(scores_, targets_, k=5):
         return 0
     scores_ = scores_.cpu().detach().numpy()
     targets_ = targets_.cpu().detach().numpy()
-    # print(targets_)
-    # print(scores_)
-    # print(scores_.shape)
-    # print(targets_.shape)
-    # exit()
-    n, n_class = scores_.shape
-    Nc, Np, Ng = np.zeros(n_class), np.zeros(n_class), np.zeros(n_class)
-    for k in range(n_class):
+
+    ap = torch.zeros(scores_.size(1))
+    rg = torch.arange(1, scores_.size(0)).float()
+    # compute average precision for each class
+    for k in range(scores_.size(1)):
+        # sort scores
         scores = scores_[:, k]
         targets = targets_[:, k]
-        #targets[targets == -1] = 0
-        Ng[k] = np.sum(targets == 1)
-        Np[k] = np.sum(scores >= 0.5)
-        Nc[k] = np.sum(targets * (scores >= 0.5))
+        # compute average precision
+        ap[k] = sm.average_precision_score(targets, scores)
 
-    # Np[Np == 0] = 1
-    OP = np.sum(Nc) / np.sum(Np + 1e-5)
-    OR = np.sum(Nc) / np.sum(Ng + 1e-5)
-    OF1 = (2 * OP * OR) / (OP + OR + 1e-5)
+    map = 100 * np.mean(ap.value().numpy())
+    return map
 
-    CP = np.sum(Nc / (Np + 1e-5)) / n_class
-    CR = np.sum(Nc / (Ng + 1e-5)) / n_class
-    CF1 = (2 * CP * CR) / (CP + CR + 1e-5)
-
-    return OP, OR, OF1, CP, CR, CF1
+    # n, n_class = scores_.shape
+    # Nc, Np, Ng = np.zeros(n_class), np.zeros(n_class), np.zeros(n_class)
+    # for k in range(n_class):
+    #     scores = scores_[:, k]
+    #     targets = targets_[:, k]
+    #     #targets[targets == -1] = 0
+    #     Ng[k] = np.sum(targets == 1)
+    #     Np[k] = np.sum(scores >= 0.5)
+    #     Nc[k] = np.sum(targets * (scores >= 0.5))
+    #
+    # # Np[Np == 0] = 1
+    # OP = np.sum(Nc) / np.sum(Np + 1e-5)
+    # OR = np.sum(Nc) / np.sum(Ng + 1e-5)
+    # OF1 = (2 * OP * OR) / (OP + OR + 1e-5)
+    #
+    # CP = np.sum(Nc / (Np + 1e-5)) / n_class
+    # CR = np.sum(Nc / (Ng + 1e-5)) / n_class
+    # CF1 = (2 * CP * CR) / (CP + CR + 1e-5)
+    # return OP, OR, OF1, CP, CR, CF1
 
 def get_tensor(M, dv):
     return torch.tensor(M).float().to(dv)
@@ -248,14 +257,16 @@ class BertGCNClassifier():
                 loss.backward()
                 optimizer.step()
                 if step % self.hypes.log_interval == 0:
-                    precision, recall, F1, _, _, _ = get_score(c_pred, labels)
-                    elapsed = time.time() - start_time
-                    start_time = time.time()
-                    cur_loss = tr_loss / nb_tr_steps
-                    print("| {:4d}/{:4d} batches | ms/batch {:5.2f}".format(step, int(len(X)/bs), elapsed * 1000))
-                    print('Precision:', np.round(precision, 4))
-                    print('Recall:', np.round(recall, 4))
-                    print('F1:', np.round(F1, 4))
+                    map = get_score(c_pred, labels)
+                    print('map:', np.round(map, 4))
+                    # precision, recall, F1, _, _, _ = get_score(c_pred, labels)
+                    # elapsed = time.time() - start_time
+                    # start_time = time.time()
+                    # cur_loss = tr_loss / nb_tr_steps
+                    # print("| {:4d}/{:4d} batches | ms/batch {:5.2f}".format(step, int(len(X)/bs), elapsed * 1000))
+                    # print('Precision:', np.round(precision, 4))
+                    # print('Recall:', np.round(recall, 4))
+                    # print('F1:', np.round(F1, 4))
 
             # if epoch % 20 == 0:
             output_dir = '../save_models/gcn_classifier/'+self.hypes.dataset+'/t-'+str(self.t)+'_ep-'+str(epoch)+'/'
@@ -283,6 +294,7 @@ class BertGCNClassifier():
         recalls = 0
         F1s = 0
         eval_t=0
+        map = 0
         print('Inferencing...')
         for step in trange(int(len(X)/bs)-1):
             input_ids = all_input_ids[step*bs:(step+1)*bs].to(self.device)
@@ -292,14 +304,18 @@ class BertGCNClassifier():
                 c_pred = self.model(input_ids)
 
             eval_t += 1
-            precision, recall, F1, _, _, _ = get_score(c_pred, labels)
-            precisions += precision
-            recalls += recall
-            F1s += F1
+            map = get_score(c_pred, labels)
 
-        print('Test Precision:', np.round(precisions/eval_t, 4))
-        print('Test Recall:', np.round(recalls/eval_t, 4))
-        print('Test F1:', np.round(F1s / eval_t, 4))
+            # precision, recall, F1, _, _, _ = get_score(c_pred, labels)
+            # precisions += precision
+            # recalls += recall
+            # F1s += F1
+
+        # print('Test Precision:', np.round(precisions/eval_t, 4))
+        # print('Test Recall:', np.round(recalls/eval_t, 4))
+        # print('Test F1:', np.round(F1s / eval_t, 4))
+
+        print('map:', np.round(map / eval_t, 4))
 
     def get_bert_token(self, trn_text, only_CLS=False):
         X = []
