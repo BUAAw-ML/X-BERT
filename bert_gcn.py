@@ -123,12 +123,13 @@ def get_binary_vec(label_list, output_dim, divide=False):
 
 
 def get_score(scores_, targets_, k=5):
-
+    np.set_printoptions(threshold=np.inf, suppress=True)
     if scores_.numel() == 0:
         return 0
     scores_ = scores_.cpu().detach().numpy()
     targets_ = targets_.cpu().detach().numpy()
     print(targets_)
+    print(scores_)
     print(scores_.shape)
     print(targets_.shape)
     exit()
