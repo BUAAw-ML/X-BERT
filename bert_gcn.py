@@ -173,7 +173,7 @@ class BertGCNClassifier():
             epohcs_range = range(1, self.epochs+1)
 
         all_input_ids = torch.tensor(X)
-        bs = 1000
+        bs = 500
         self.model.train()
         self.model.to(self.device)
         total_run_time = 0.0
