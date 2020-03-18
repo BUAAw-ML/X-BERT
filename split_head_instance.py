@@ -29,9 +29,9 @@ def parse_mlc2seq_format(data_path):
 
 def main():
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument("-ds", "--dataset", default="ProgrammerWeb-12K", type=str, required=True)
-    parser.add_argument("-t", "--threshold", default=100, type=int, required=True)
-    parser.add_argument("-train", "--is_train", default=1, type=int, required=True)
+    parser.add_argument("-ds", "--dataset", default="ProgrammerWeb-12K", type=str, required=False)
+    parser.add_argument("-t", "--threshold", default=100, type=int, required=False)
+
     args = parser.parse_args()
     ds_path = '../datasets/' + args.dataset
     threshold = args.threshold
