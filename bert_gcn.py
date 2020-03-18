@@ -63,7 +63,7 @@ class BertGCN(BertModel):
         self.A = torch.tensor(gen_A(num_labels, res)).float().to(self.device)
         # self.A = Parameter(torch.from_numpy(gen_A(num_labels, res)).float()).to(self.device)
         self.adj = gen_adj(self.A).detach()
-        print(self.adj)
+
         # self.FCN2 = nn.Linear(num_labels, num_labels)
 
     def forward(self, input_ids, gcn_limit=False, token_type_ids=None, attention_mask=None):
@@ -84,6 +84,9 @@ class BertGCN(BertModel):
         x = x.transpose(1, 0)
         x = torch.matmul(bert_logits, x)
         logits = x + skip
+        print(x)
+        print(skip)
+        exit()
         # logits = x
         # logits = self.FCN2(logits)
         return self.softmax(logits)
@@ -208,9 +211,6 @@ class BertGCNClassifier():
 
                 labels = get_tensor(labels.toarray(), self.device)
                 c_pred = self.model(input_ids)
-
-                print(c_pred)
-                exit()
 
                 loss = self.criterion(c_pred, labels)
 
