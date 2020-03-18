@@ -128,13 +128,16 @@ def get_score(scores_, targets_, k=5):
         return 0
     scores_ = scores_.cpu().detach().numpy()
     targets_ = targets_.cpu().detach().numpy()
-
+    print(targets_)
+    print(scores_.shape)
+    print(targets_.shape)
+    exit()
     n, n_class = scores_.shape
     Nc, Np, Ng = np.zeros(n_class), np.zeros(n_class), np.zeros(n_class)
     for k in range(n_class):
         scores = scores_[:, k]
         targets = targets_[:, k]
-        targets[targets == -1] = 0
+        #targets[targets == -1] = 0
         Ng[k] = np.sum(targets == 1)
         Np[k] = np.sum(scores >= 0)
         Nc[k] = np.sum(targets * (scores >= 0))
