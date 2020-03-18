@@ -19,9 +19,9 @@ from gensim.models import KeyedVectors as KV
 from sklearn.neighbors import NearestNeighbors as NN
 import random
 # from mather.bert import *
-import xbert.data_utils as data_utils
-import xbert.rf_linear as rf_linear
-import xbert.rf_util as rf_util
+# import xbert.data_utils as data_utils
+# import xbert.rf_linear as rf_linear
+# import xbert.rf_util as rf_util
 from Hyperparameters import Hyperparameters
 from GCN import GraphConvolution, gen_A, gen_adj
 

@@ -9,7 +9,7 @@ from rf_util import *
 from tqdm import tqdm
 import pickle as pkl
 import scipy as sp
-from xbert.rf_util import smat_util
+# from xbert.rf_util import smat_util
 import csv
 
 
