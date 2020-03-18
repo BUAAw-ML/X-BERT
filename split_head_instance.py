@@ -24,7 +24,7 @@ def parse_mlc2seq_format(data_path):
                 continue
             id, title, dscp, tag = row
             labels.append(tag)
-            corpus.append(title + dscp)
+            corpus.append(title + " " + dscp)
     return labels, corpus
 
 def main():
@@ -41,6 +41,7 @@ def main():
     trn_labels, trn_corpus = parse_mlc2seq_format(ds_path + '/mlc2seq/programweb-data.csv')
     for idx, labels in tqdm(enumerate(trn_labels)):
         labels = np.array(list(labels.strip().split('###')))
+        labels = [t for t in labels if t != '']
         lbs = []
         for label in list(set(labels)):
             lbs.append(label)
