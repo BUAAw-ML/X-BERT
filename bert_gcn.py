@@ -126,8 +126,8 @@ def get_score(scores_, targets_, k=5):
 
     if scores_.numel() == 0:
         return 0
-    scores_ = scores_.cpu().numpy()
-    targets_ = targets_.cpu().numpy()
+    scores_ = scores_.cpu().detach().numpy()
+    targets_ = targets_.cpu().detach().numpy()
 
     n, n_class = scores_.shape
     Nc, Np, Ng = np.zeros(n_class), np.zeros(n_class), np.zeros(n_class)
