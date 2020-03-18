@@ -37,17 +37,23 @@ def main():
 
     head_instances = []
     head_Y = []
+    heads = set()
     trn_labels, trn_corpus = parse_mlc2seq_format(ds_path + '/mlc2seq/programweb-data.csv')
     for idx, labels in tqdm(enumerate(trn_labels)):
         labels = np.array(list(labels.strip().split('###')))
         lbs = []
         for label in list(set(labels)):
             lbs.append(label)
+            heads.update(label)
         if len(lbs):
             head_instances.append(trn_corpus[idx])
             head_Y.append(lbs)
 
-   # data = np.array(dataset.data)
+    with open(ds_path+'/mlc2seq/heads-'+str(threshold), 'wb') as g:
+        pkl.dump(g)
+
+    head_instances = np.array(head_instances)
+    head_Y = np.array(head_Y)
 
     ind = np.random.RandomState(seed=10).permutation(len(head_instances))
     split = int(len(head_instances) * 0.9)
