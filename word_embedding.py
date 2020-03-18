@@ -103,7 +103,7 @@ def get_glove_dict(txt_dir):
     print('loaded to dict!')
     return word_dict
 
-def obtain_tag_embedding(ds_path, wv='glove', model_path='dataset'):
+def obtain_tag_embedding(ds_path='dataset', wv='glove', model_path='dataset'):
 
     parser = argparse.ArgumentParser(description='')
     parser.add_argument("-t", "--threshold", default=100, type=int, required=False)
