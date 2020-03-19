@@ -102,6 +102,14 @@ class BertGCN(BertModel):
         # logits = self.FCN2(logits)
         return self.softmax(logits)
         # return logits
+    def get_config_optim(self, lr, lrp):
+        return [
+            {'params': self.bert.parameters(), 'lr': lr * lrp},
+            {'params': self.FCN.parameters(), 'lr': lr},
+            {'params': self.gcn_weight1.parameters(), 'lr': lr},
+            {'params': self.gcn_weight2.parameters(), 'lr': lr},
+            {'params': self.gc2.parameters(), 'lr': lr},
+        ]
 
     def get_bertout(self, input_ids):
         with torch.no_grad():
@@ -186,10 +194,9 @@ class BertGCNClassifier():
             {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
             ]
 
-        optimizer = BertAdam(optimizer_grouped_parameters,
+        optimizer = BertAdam(self.model.get_config_optim(self.hypes.learning_rate, lrp=0.1),
                              lr=self.hypes.learning_rate,
                              warmup=self.hypes.warmup_rate)
-        print(optimizer_grouped_parameters)
 
         nb_tr_examples = 0
         for epoch in tqdm(epohcs_range):
