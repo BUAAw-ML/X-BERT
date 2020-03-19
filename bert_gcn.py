@@ -189,6 +189,7 @@ class BertGCNClassifier():
         optimizer = BertAdam(optimizer_grouped_parameters,
                              lr=self.hypes.learning_rate,
                              warmup=self.hypes.warmup_rate)
+        print(optimizer_grouped_parameters)
 
         nb_tr_examples = 0
         for epoch in tqdm(epohcs_range):
