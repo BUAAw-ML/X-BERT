@@ -254,7 +254,7 @@ class BertGCNClassifier():
 
             self.ap_meter.add(c_pred.data.cpu(), labels.cpu())
 
-        map = 100 * np.mean(self.ap_meter.value().numpy())
+        map = 100 * np.nanmean(self.ap_meter.value().numpy())
         OP, OR, OF1, CP, CR, CF1 = self.ap_meter.overall()
         print('mAP {map:.3f}'.format(map=map))
         print('OP: {OP:.4f}\t'
