@@ -45,7 +45,7 @@ class Hyperparameters():
             self.eval_batch_size=200
             self.log_interval=300
             self.eval_interval=100
-            self.learning_rate=5e-2
+            self.learning_rate=5e-4
             self.warmup_rate=0.1
         else:
             print("unknown dataset for the experiment!")
