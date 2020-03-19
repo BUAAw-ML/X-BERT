@@ -335,7 +335,7 @@ def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument("-ds", "--dataset", default="ProgrammerWeb-12K", type=str, required=False)
     parser.add_argument("-t", "--head_threshold", default=100, type=int)
-    parser.add_argument("-gpu", "--device_num", default='0', type=str)
+    parser.add_argument("-gpu", "--device_num", default='1', type=str)
     parser.add_argument("-train", "--is_train", default=1, type=int)
     parser.add_argument("-ep", "--epochs", default=20, type=int)
     parser.add_argument("-ft", "--fine_tune", default=0, type=int)
