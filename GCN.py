@@ -8,7 +8,10 @@ import numpy as np
 def gen_A(num_classes, result):
     np.set_printoptions(threshold=np.inf, suppress=True)
     _adj = result.adj
+    print(_adj)
+    exit()
     _nums = result.nums
+    print(_adj)
     _nums = _nums[:, np.newaxis]
     _nums[np.where(_nums==0)] = 1
     _adj = _adj / _nums
