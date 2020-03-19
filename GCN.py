@@ -16,6 +16,8 @@ def gen_A(num_classes, result):
     # _adj[_adj > t] = 1
     # _adj = _adj * 0.1 / (_adj.sum(0, keepdims=True) + 1e-6)
     # _adj = _adj + np.identity(num_classes, np.int)
+    print(_adj)
+    exit()
     return _adj
 
 def gen_adj(A):
