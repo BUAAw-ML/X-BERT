@@ -6,14 +6,14 @@ import math
 import numpy as np
 
 def gen_A(num_classes, result):
-    np.set_printoptions(threshold=np.inf, suppress=True)
+    #np.set_printoptions(threshold=np.inf, suppress=True)
     _adj = result.adj
-    print(_adj)
-    exit()
-    _nums = result.nums
-    print(_adj)
+
+    #_nums = result.nums
+    _nums = _adj.diagonal()
+    #print(_adj)
     _nums = _nums[:, np.newaxis]
-    _nums[np.where(_nums==0)] = 1
+    #_nums[np.where(_nums==0)] = 1
     _adj = _adj / _nums
     # t=0
     #_adj[_adj <= 0.4] = 0
@@ -21,7 +21,6 @@ def gen_A(num_classes, result):
     # _adj = _adj * 0.1 / (_adj.sum(0, keepdims=True) + 1e-6)
     # _adj = _adj + np.identity(num_classes, np.int)
     print(_adj)
-    exit()
     return _adj
 
 def gen_adj(A):
