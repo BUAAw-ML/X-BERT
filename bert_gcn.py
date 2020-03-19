@@ -85,12 +85,12 @@ class BertGCN(BertModel):
         else:
             _, pooled_output = self.bert(input_ids, output_all_encoded_layers=False)
 
-        bert_logits = self.dropout(pooled_output)
+        bert_logits = pooled_output#self.dropout(pooled_output)
         skip = self.lkrelu(self.FCN(bert_logits))
         adj = self.adj
         # adj = gen_adj(self.A).detach()
 
-        x = torch.matmul(adj, self.dropout(torch.matmul(self.H, self.gcn_weight1)))
+        x = torch.matmul(adj, torch.matmul(self.H, self.gcn_weight1))#self.dropout(torch.matmul(self.H, self.gcn_weight1)))
         x = self.lkrelu(x)
         x = torch.matmul(adj, torch.matmul(x, self.gcn_weight2))
         x = self.lkrelu(x)
