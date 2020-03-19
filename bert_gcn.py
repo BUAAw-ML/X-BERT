@@ -42,7 +42,7 @@ class GraphUtil():
     def gen_graph(self):
         for label_list in tqdm(self.Y):
             for i in range(len(label_list)):
-                for j in range(i+1, len(label_list)):
+                for j in range(len(label_list)):
                     self.adj[label_list[i]][label_list[j]] += 1
                     self.adj[label_list[j]][label_list[i]] += 1
 
