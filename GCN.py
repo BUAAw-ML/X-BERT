@@ -6,6 +6,7 @@ import math
 import numpy as np
 
 def gen_A(num_classes, result):
+    np.set_printoptions(threshold=np.inf, suppress=True)
     _adj = result.adj
     _nums = result.nums
     _nums = _nums[:, np.newaxis]
