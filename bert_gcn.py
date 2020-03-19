@@ -130,8 +130,8 @@ def get_score(scores_, targets_, k=5):
     scores_ = scores_.cpu().detach().numpy()
     targets_ = targets_.cpu().detach().numpy()
 
-    ap = torch.zeros(scores_.size(1))
-    rg = torch.arange(1, scores_.size(0)).float()
+    ap = torch.zeros(scores_.shape[1])
+    #rg = torch.arange(1, scores_.size(0)).float()
     # compute average precision for each class
     for k in range(scores_.size(1)):
         # sort scores
