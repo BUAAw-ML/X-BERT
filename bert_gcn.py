@@ -96,9 +96,9 @@ class BertGCN(BertModel):
         x = self.lkrelu(x)
         x = x.transpose(1, 0)
         x = torch.matmul(bert_logits, x)
-        logits = x + skip
+        #logits = x + skip
 
-        # logits = x
+        logits = x
         # logits = self.FCN2(logits)
         return self.softmax(logits)
         # return logits
