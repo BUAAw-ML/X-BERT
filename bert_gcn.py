@@ -139,8 +139,13 @@ def get_score(scores_, targets_, k=5):
         targets = targets_[:, k]
         # compute average precision
         ap[k] = sm.average_precision_score(targets, scores)
+        print(ap)
+
 
     map = 100 * np.mean(ap.numpy())
+    print(ap.numpy())
+    print(np.mean(ap.numpy()))
+    exit()
     return map
 
     # n, n_class = scores_.shape
