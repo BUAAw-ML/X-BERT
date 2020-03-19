@@ -106,9 +106,8 @@ class BertGCN(BertModel):
         return [
             {'params': self.bert.parameters(), 'lr': lr * lrp},
             {'params': self.FCN.parameters(), 'lr': lr},
-            {'params': self.gcn_weight1.parameters(), 'lr': lr},
-            {'params': self.gcn_weight2.parameters(), 'lr': lr},
-            {'params': self.gc2.parameters(), 'lr': lr},
+            {'params': self.gcn_weight1, 'lr': lr},
+            {'params': self.gcn_weight2, 'lr': lr},
         ]
 
     def get_bertout(self, input_ids):
